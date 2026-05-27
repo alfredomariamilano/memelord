@@ -1,0 +1,4 @@
+[tool.bun.test]
+pattern = "**/*.test.ts"
+coverage = true
+parallel = false

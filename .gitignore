@@ -6,3 +6,4 @@ dist/
 *.db-shm
 benchmark/.turso-workdir/
 benchmark/results/
+.sisyphus

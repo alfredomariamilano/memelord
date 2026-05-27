@@ -9,6 +9,7 @@ describe("runMigrations", () => {
   let tursoDb: TursoDatabase;
   let drizzleDb: ReturnType<typeof createDrizzleDb>;
   let dbPath: string;
+  const migrationsFolder = join(import.meta.dir, "..", "drizzle");
 
   beforeEach(async () => {
     // Create a temporary database (no multiprocess_wal for Bun compatibility)
@@ -25,7 +26,7 @@ describe("runMigrations", () => {
   });
 
   test("creates all tables on first run", async () => {
-    await runMigrations(drizzleDb);
+    await runMigrations(drizzleDb, migrationsFolder);
 
     // Verify all 4 tables exist
     const tables = await tursoDb.all("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
@@ -39,10 +40,10 @@ describe("runMigrations", () => {
   });
 
   test("is idempotent — second run doesn't duplicate", async () => {
-    await runMigrations(drizzleDb);
+    await runMigrations(drizzleDb, migrationsFolder);
 
     // Run again — should not throw and should not create duplicate tables
-    await runMigrations(drizzleDb);
+    await runMigrations(drizzleDb, migrationsFolder);
 
     const tables = await tursoDb.all("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
     const tableNames = tables.map((t: any) => t.name);
@@ -59,7 +60,7 @@ describe("runMigrations", () => {
   });
 
   test("tracks migration in __drizzle_migrations", async () => {
-    await runMigrations(drizzleDb);
+    await runMigrations(drizzleDb, migrationsFolder);
 
     const migrations = await tursoDb.all("SELECT name, hash FROM __drizzle_migrations ORDER BY name");
     expect(migrations.length).toBe(1);
@@ -68,7 +69,7 @@ describe("runMigrations", () => {
   });
 
   test("creates composite PK on memory_retrievals", async () => {
-    await runMigrations(drizzleDb);
+    await runMigrations(drizzleDb, migrationsFolder);
 
     const schema = await tursoDb.all("SELECT sql FROM sqlite_master WHERE type='table' AND name='memory_retrievals'");
     expect(schema[0].sql).toMatch(/PRIMARY KEY\s+\(`memory_id`, `task_id`\)/);
