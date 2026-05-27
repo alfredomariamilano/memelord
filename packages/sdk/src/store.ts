@@ -4,7 +4,7 @@ import {
 	type Database as TursoDatabase,
 } from "@tursodatabase/database";
 import { desc, eq, sql } from "drizzle-orm";
-import { createDrizzleDb } from "./db/index";
+import { createDrizzleDb, runMigrations } from "./db/index";
 import * as schema from "./db/schema";
 import {
 	computeCredit,
@@ -104,6 +104,9 @@ export class MemoryStore {
 	async init(): Promise<void> {
 		if (this.initialized) return;
 		await this.withDb(async (db) => {
+			// Run schema migrations (creates tables if they don't exist)
+			await runMigrations(db);
+
 			// One-time migration: detect embeddings truncated by Float32Array driver bug
 			const result = await db.run(
 				sql`UPDATE memories SET embedding = NULL WHERE embedding IS NOT NULL AND length(embedding) < 1536`,
