@@ -102,7 +102,7 @@ if (command === "hook") {
 			console.log(`\n  Top by weight:`);
 			for (const m of topMems) {
 				const preview =
-					m.content.length > 70 ?  `${m.content.slice(0, 70)}...` : m.content;
+					m.content.length > 70 ? `${m.content.slice(0, 70)}...` : m.content;
 				console.log(
 					`    [w=${m.weight.toFixed(2)}, used=${m.retrieval_count}x] ${preview}`,
 				);
@@ -326,7 +326,7 @@ if (command === "hook") {
 	if (existsSync(gitignorePath)) {
 		const content = readFileSync(gitignorePath, "utf-8");
 		if (!content.includes(".memelord")) {
-			writeFileSync(gitignorePath,  `${content.trimEnd()}\n.memelord/\n`);
+			writeFileSync(gitignorePath, `${content.trimEnd()}\n.memelord/\n`);
 			console.log("  Updated .gitignore");
 		}
 	} else {
@@ -348,7 +348,7 @@ if (command === "hook") {
 		args: [...cli.args, "serve"],
 		env: { MEMELORD_DIR: join(targetDir, ".memelord") },
 	};
-	writeFileSync(mcpJsonPath,  `${JSON.stringify(mcpConfig, null, 2)}\n`);
+	writeFileSync(mcpJsonPath, `${JSON.stringify(mcpConfig, null, 2)}\n`);
 	console.log("  Wrote .mcp.json (Claude Code)");
 
 	// 4. Codex — .codex/config.toml
@@ -389,7 +389,7 @@ enabled = true
 		environment: { MEMELORD_DIR: join(targetDir, ".memelord") },
 		enabled: true,
 	};
-	writeFileSync(opencodePath,  `${JSON.stringify(opencodeConfig, null, 2)}\n`);
+	writeFileSync(opencodePath, `${JSON.stringify(opencodeConfig, null, 2)}\n`);
 	console.log("  Wrote opencode.json (OpenCode)");
 
 	// 6. OpenClaw — config/mcporter.json

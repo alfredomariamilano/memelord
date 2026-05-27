@@ -363,7 +363,9 @@ export class MemoryStore {
 	async purge(threshold: number): Promise<number> {
 		await this.init();
 		return this.withDb(async (db) => {
-			const result = await db.run(sql`DELETE FROM memories WHERE weight < ${threshold}`);
+			const result = await db.run(
+				sql`DELETE FROM memories WHERE weight < ${threshold}`,
+			);
 			return result.changes;
 		});
 	}

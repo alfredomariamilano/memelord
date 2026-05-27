@@ -1,10 +1,10 @@
 export interface BenchmarkTask {
-  id: string;
-  prNumber: number;
-  parentCommit: string;
-  prompt: string;
-  expectedFiles: string[];
-  testCommand?: string;
+	id: string;
+	prNumber: number;
+	parentCommit: string;
+	prompt: string;
+	expectedFiles: string[];
+	testCommand?: string;
 }
 
 const MEMORY_INSTRUCTIONS = `
@@ -15,11 +15,11 @@ IMPORTANT — Memory system:
 `;
 
 export const tasks: BenchmarkTask[] = [
-  {
-    id: "last-insert-rowid",
-    prNumber: 5323,
-    parentCommit: "49e0df7ebc324d1069a7fed1ce6c2139b53703b0",
-    prompt: `You are working on the Turso database — a Rust-based SQLite-compatible database. The codebase is at {workdir}.
+	{
+		id: "last-insert-rowid",
+		prNumber: 5323,
+		parentCommit: "49e0df7ebc324d1069a7fed1ce6c2139b53703b0",
+		prompt: `You are working on the Turso database — a Rust-based SQLite-compatible database. The codebase is at {workdir}.
 
 Bug report (issue #5280):
 
@@ -45,18 +45,18 @@ The codebase has these key directories:
 - testing/ — Test infrastructure
 
 ${MEMORY_INSTRUCTIONS}`,
-    expectedFiles: [
-      "core/translate/emitter.rs",
-      "core/translate/upsert.rs",
-      "core/vdbe/insn.rs",
-      "core/vdbe/execute.rs",
-    ],
-  },
-  {
-    id: "max-columns",
-    prNumber: 5266,
-    parentCommit: "6a7f2cd0d43f49fd2816d4bbe5f256572c6032c5",
-    prompt: `You are working on the Turso database — a Rust-based SQLite-compatible database. The codebase is at {workdir}.
+		expectedFiles: [
+			"core/translate/emitter.rs",
+			"core/translate/upsert.rs",
+			"core/vdbe/insn.rs",
+			"core/vdbe/execute.rs",
+		],
+	},
+	{
+		id: "max-columns",
+		prNumber: 5266,
+		parentCommit: "6a7f2cd0d43f49fd2816d4bbe5f256572c6032c5",
+		prompt: `You are working on the Turso database — a Rust-based SQLite-compatible database. The codebase is at {workdir}.
 
 Bug report (issue #5232):
 
@@ -81,16 +81,14 @@ The codebase has these key directories:
 - tests/integration/ — Integration tests
 
 ${MEMORY_INSTRUCTIONS}`,
-    expectedFiles: [
-      "core/translate/select.rs",
-    ],
-    testCommand: "cargo test test_too_many_columns",
-  },
-  {
-    id: "in-subquery-affinity",
-    prNumber: 5214,
-    parentCommit: "711c6b9cc62ba3b9bb35fb9666f25893f9654467",
-    prompt: `You are working on the Turso database — a Rust-based SQLite-compatible database. The codebase is at {workdir}.
+		expectedFiles: ["core/translate/select.rs"],
+		testCommand: "cargo test test_too_many_columns",
+	},
+	{
+		id: "in-subquery-affinity",
+		prNumber: 5214,
+		parentCommit: "711c6b9cc62ba3b9bb35fb9666f25893f9654467",
+		prompt: `You are working on the Turso database — a Rust-based SQLite-compatible database. The codebase is at {workdir}.
 
 Bug report:
 
@@ -116,14 +114,14 @@ The codebase has these key directories:
 - parser/src/ast.rs — AST types
 
 ${MEMORY_INSTRUCTIONS}`,
-    expectedFiles: [
-      "core/translate/expr.rs",
-      "core/translate/subquery.rs",
-      "core/translate/compound_select.rs",
-      "core/translate/plan.rs",
-      "core/translate/result_row.rs",
-      "core/translate/values.rs",
-      "parser/src/ast.rs",
-    ],
-  },
+		expectedFiles: [
+			"core/translate/expr.rs",
+			"core/translate/subquery.rs",
+			"core/translate/compound_select.rs",
+			"core/translate/plan.rs",
+			"core/translate/result_row.rs",
+			"core/translate/values.rs",
+			"parser/src/ast.rs",
+		],
+	},
 ];

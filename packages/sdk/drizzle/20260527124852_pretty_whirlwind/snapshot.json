@@ -1,344 +1,333 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "id": "ee2ee644-d002-4ebc-937a-a97f9b030361",
-  "prevIds": [
-    "00000000-0000-0000-0000-000000000000"
-  ],
-  "ddl": [
-    {
-      "name": "memories",
-      "entityType": "tables"
-    },
-    {
-      "name": "memory_retrievals",
-      "entityType": "tables"
-    },
-    {
-      "name": "meta",
-      "entityType": "tables"
-    },
-    {
-      "name": "tasks",
-      "entityType": "tables"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "id",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "content",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "blob",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "embedding",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "category",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "real",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "1",
-      "generated": null,
-      "name": "weight",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "0",
-      "generated": null,
-      "name": "initial_cost",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "integer",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "last_retrieved",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "0",
-      "generated": null,
-      "name": "retrieval_count",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "source_task",
-      "entityType": "columns",
-      "table": "memories"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "memory_id",
-      "entityType": "columns",
-      "table": "memory_retrievals"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "task_id",
-      "entityType": "columns",
-      "table": "memory_retrievals"
-    },
-    {
-      "type": "real",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "similarity",
-      "entityType": "columns",
-      "table": "memory_retrievals"
-    },
-    {
-      "type": "real",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "self_report",
-      "entityType": "columns",
-      "table": "memory_retrievals"
-    },
-    {
-      "type": "real",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "credit",
-      "entityType": "columns",
-      "table": "memory_retrievals"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "key",
-      "entityType": "columns",
-      "table": "meta"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "value",
-      "entityType": "columns",
-      "table": "meta"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "id",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "description",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "blob",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "embedding",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "tokens_used",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "tool_calls",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "errors",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "user_corrections",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "completed",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "real",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "task_score",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "started_at",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "finished_at",
-      "entityType": "columns",
-      "table": "tasks"
-    },
-    {
-      "columns": [
-        "memory_id",
-        "task_id"
-      ],
-      "nameExplicit": true,
-      "name": "pk",
-      "entityType": "pks",
-      "table": "memory_retrievals"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "memories_pk",
-      "table": "memories",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "key"
-      ],
-      "nameExplicit": false,
-      "name": "meta_pk",
-      "table": "meta",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "tasks_pk",
-      "table": "tasks",
-      "entityType": "pks"
-    }
-  ],
-  "renames": []
+	"version": "7",
+	"dialect": "sqlite",
+	"id": "ee2ee644-d002-4ebc-937a-a97f9b030361",
+	"prevIds": ["00000000-0000-0000-0000-000000000000"],
+	"ddl": [
+		{
+			"name": "memories",
+			"entityType": "tables"
+		},
+		{
+			"name": "memory_retrievals",
+			"entityType": "tables"
+		},
+		{
+			"name": "meta",
+			"entityType": "tables"
+		},
+		{
+			"name": "tasks",
+			"entityType": "tables"
+		},
+		{
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "id",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "content",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "blob",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "embedding",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "category",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "real",
+			"notNull": false,
+			"autoincrement": false,
+			"default": "1",
+			"generated": null,
+			"name": "weight",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": "0",
+			"generated": null,
+			"name": "initial_cost",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "integer",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "created_at",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "last_retrieved",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": "0",
+			"generated": null,
+			"name": "retrieval_count",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "source_task",
+			"entityType": "columns",
+			"table": "memories"
+		},
+		{
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "memory_id",
+			"entityType": "columns",
+			"table": "memory_retrievals"
+		},
+		{
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "task_id",
+			"entityType": "columns",
+			"table": "memory_retrievals"
+		},
+		{
+			"type": "real",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "similarity",
+			"entityType": "columns",
+			"table": "memory_retrievals"
+		},
+		{
+			"type": "real",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "self_report",
+			"entityType": "columns",
+			"table": "memory_retrievals"
+		},
+		{
+			"type": "real",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "credit",
+			"entityType": "columns",
+			"table": "memory_retrievals"
+		},
+		{
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "key",
+			"entityType": "columns",
+			"table": "meta"
+		},
+		{
+			"type": "text",
+			"notNull": true,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "value",
+			"entityType": "columns",
+			"table": "meta"
+		},
+		{
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "id",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "text",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "description",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "blob",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "embedding",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "tokens_used",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "tool_calls",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "errors",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "user_corrections",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "completed",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "real",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "task_score",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "started_at",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"type": "integer",
+			"notNull": false,
+			"autoincrement": false,
+			"default": null,
+			"generated": null,
+			"name": "finished_at",
+			"entityType": "columns",
+			"table": "tasks"
+		},
+		{
+			"columns": ["memory_id", "task_id"],
+			"nameExplicit": true,
+			"name": "pk",
+			"entityType": "pks",
+			"table": "memory_retrievals"
+		},
+		{
+			"columns": ["id"],
+			"nameExplicit": false,
+			"name": "memories_pk",
+			"table": "memories",
+			"entityType": "pks"
+		},
+		{
+			"columns": ["key"],
+			"nameExplicit": false,
+			"name": "meta_pk",
+			"table": "meta",
+			"entityType": "pks"
+		},
+		{
+			"columns": ["id"],
+			"nameExplicit": false,
+			"name": "tasks_pk",
+			"table": "tasks",
+			"entityType": "pks"
+		}
+	],
+	"renames": []
 }

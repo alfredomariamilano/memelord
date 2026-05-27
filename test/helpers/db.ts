@@ -1,28 +1,34 @@
-import { connect, type Database as TursoDatabase } from "@tursodatabase/database";
 import { randomUUID } from "node:crypto";
+import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { rmSync, existsSync } from "node:fs";
+import {
+	connect,
+	type Database as TursoDatabase,
+} from "@tursodatabase/database";
 
 /**
  * Create an in-memory SQLite database for unit tests.
  * Uses :memory: — faster, no disk I/O, each connection is isolated.
  */
 export async function createTestDb(): Promise<TursoDatabase> {
-  const tursoDb = await connect(":memory:");
-  await tursoDb.exec("PRAGMA busy_timeout = 5000");
-  return tursoDb;
+	const tursoDb = await connect(":memory:");
+	await tursoDb.exec("PRAGMA busy_timeout = 5000");
+	return tursoDb;
 }
 
 /**
  * Create a temporary file-based SQLite database for integration tests.
  * Returns the TursoDatabase connection and the path for cleanup.
  */
-export async function createTempDb(): Promise<{ db: TursoDatabase; path: string }> {
-  const path = join(process.cwd(), "test-db-" + randomUUID() + ".db");
-  if (existsSync(path)) rmSync(path);
-  const db = await connect(path);
-  await db.exec("PRAGMA busy_timeout = 5000");
-  return { db, path };
+export async function createTempDb(): Promise<{
+	db: TursoDatabase;
+	path: string;
+}> {
+	const path = join(process.cwd(), "test-db-" + randomUUID() + ".db");
+	if (existsSync(path)) rmSync(path);
+	const db = await connect(path);
+	await db.exec("PRAGMA busy_timeout = 5000");
+	return { db, path };
 }
 
 /**
@@ -30,7 +36,7 @@ export async function createTempDb(): Promise<{ db: TursoDatabase; path: string 
  * Used by tests to bypass runMigrations() which requires a migrations folder.
  */
 export async function createSchema(db: TursoDatabase): Promise<void> {
-  await db.exec(`
+	await db.exec(`
     CREATE TABLE IF NOT EXISTS memories (
       id TEXT PRIMARY KEY,
       content TEXT NOT NULL,
@@ -78,6 +84,6 @@ export async function createSchema(db: TursoDatabase): Promise<void> {
  * Close a database connection and remove the temp file if applicable.
  */
 export function closeDb(db: TursoDatabase, path?: string): void {
-  db.close();
-  if (path && existsSync(path)) rmSync(path);
+	db.close();
+	if (path && existsSync(path)) rmSync(path);
 }
