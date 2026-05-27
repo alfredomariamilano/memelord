@@ -79,10 +79,11 @@ export class MemoryStore {
 					experimental: ["multiprocess_wal"],
 				});
 				break;
-			} catch (e: any) {
+			} catch (e: unknown) {
+				const message = e instanceof Error ? String(e.message ?? "") : "";
 				if (
 					attempt >= maxRetries ||
-					(!e.message?.includes("locked") && !e.message?.includes("Locking"))
+					(!message.includes("locked") && !message.includes("Locking"))
 				) {
 					throw e;
 				}

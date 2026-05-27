@@ -139,7 +139,9 @@ describe("MemoryStore smoke tests", () => {
 			);
 
 			expect(rows.length).toBeGreaterThan(0);
-			const authMem = (rows as any[]).find((r) => r.id === memId);
+			const authMem = (rows as Array<Record<string, unknown>>).find(
+				(r) => r.id === memId,
+			);
 			// Mock embeddings are random, so just verify we got results and the memory exists in the DB
 			expect(authMem).toBeDefined();
 		});
@@ -470,8 +472,10 @@ describe("MemoryStore smoke tests", () => {
 			);
 
 			expect(rows.length).toBeGreaterThan(0);
-			const dbMem = (rows as any[]).find((r) =>
-				r.content.includes("Database migrations"),
+			const dbMem = (rows as Array<Record<string, unknown>>).find(
+				(r) =>
+					typeof r.content === "string" &&
+					r.content.includes("Database migrations"),
 			);
 			// Mock embeddings are random, so just verify we got results and the memory exists in the DB
 			expect(dbMem).toBeDefined();

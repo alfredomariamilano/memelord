@@ -27,9 +27,22 @@ export function getDbPath(): string {
 	return resolve(getDataDir(), "memory.db");
 }
 
-export async function readStdin(): Promise<any> {
+interface GenericRecord {
+	[key: string]: unknown;
+}
+
+export interface StdinInput {
+	session_id?: string;
+	cwd?: string;
+	transcript_path?: string;
+	tool_name?: string;
+	tool_input?: unknown;
+	tool_response?: GenericRecord | string;
+}
+
+export async function readStdin(): Promise<StdinInput> {
 	const text = await Bun.stdin.text();
-	const input = JSON.parse(text);
+	const input = JSON.parse(text) as StdinInput;
 	// Hooks receive cwd from Claude Code — use it to find the right per-directory DB
 	if (input.cwd) {
 		setCwd(input.cwd);

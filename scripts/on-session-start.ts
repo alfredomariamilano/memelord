@@ -62,9 +62,10 @@ You have a persistent memory system available via MCP tools. Use it:
 	};
 
 	console.log(JSON.stringify(output));
-} catch (e: any) {
+} catch (e: unknown) {
 	// Non-blocking — write error to stderr, exit 0 so session starts normally
-	console.error(`memelord SessionStart error: ${e.message}`);
+	const message = e instanceof Error ? e.message : String(e);
+	console.error(`memelord SessionStart error: ${message}`);
 } finally {
 	await store.close();
 }

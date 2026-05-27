@@ -21,12 +21,25 @@ import { createMemoryStore, type MemoryStore } from "memelord";
 // Shared helpers
 // ---------------------------------------------------------------------------
 
-async function readStdin(): Promise<any> {
+interface GenericRecord {
+	[key: string]: unknown;
+}
+
+interface StdinInput {
+	session_id?: string;
+	cwd?: string;
+	transcript_path?: string;
+	tool_response?: GenericRecord | unknown;
+	tool_name?: string;
+	tool_input?: unknown;
+}
+
+async function readStdin(): Promise<StdinInput> {
 	const chunks: Buffer[] = [];
 	for await (const chunk of process.stdin) {
 		chunks.push(chunk);
 	}
-	return JSON.parse(Buffer.concat(chunks).toString());
+	return JSON.parse(Buffer.concat(chunks).toString()) as StdinInput;
 }
 
 function getDataDir(cwd: string): string {
@@ -117,8 +130,9 @@ You have a persistent memory system available via MCP tools. Use it:
 				},
 			}),
 		);
-	} catch (e: any) {
-		console.error(`memelord SessionStart error: ${e.message}`);
+	} catch (e: unknown) {
+		const message = e instanceof Error ? e.message : String(e);
+		console.error(`memelord SessionStart error: ${message}`);
 	} finally {
 		await store.close();
 	}
@@ -137,9 +151,12 @@ async function hookPostToolUse(): Promise<void> {
 	const response = input.tool_response;
 	if (!response) process.exit(0);
 
+	const objResponse =
+		typeof response === "object" ? (response as Record<string, unknown>) : null;
+
 	const isFailure =
-		(typeof response === "object" && response.success === false) ||
-		(typeof response === "object" && response.isError === true) ||
+		(objResponse !== null && objResponse.success === false) ||
+		(objResponse !== null && objResponse.isError === true) ||
 		(typeof response === "string" &&
 			(response.startsWith("Error:") ||
 				response.startsWith("error:") ||
@@ -147,9 +164,9 @@ async function hookPostToolUse(): Promise<void> {
 				response.includes("command not found") ||
 				response.includes("No such file") ||
 				response.includes("Permission denied"))) ||
-		(typeof response === "object" &&
-			typeof response.exitCode === "number" &&
-			response.exitCode !== 0);
+		(objResponse !== null &&
+			typeof objResponse.exitCode === "number" &&
+			objResponse.exitCode !== 0);
 
 	if (!isFailure) process.exit(0);
 
@@ -157,8 +174,8 @@ async function hookPostToolUse(): Promise<void> {
 	const errorSummary =
 		typeof response === "string"
 			? response.slice(0, 500)
-			: (response.error ??
-				response.message ??
+			: ((objResponse?.error as string | undefined) ??
+				(objResponse?.message as string | undefined) ??
 				JSON.stringify(response).slice(0, 500));
 
 	const failuresFile = join(getSessionsDir(cwd), `${sessionId}.failures.jsonl`);
@@ -179,7 +196,7 @@ async function hookPostToolUse(): Promise<void> {
 
 interface TranscriptMessage {
 	role: string;
-	content: any;
+	content: unknown;
 	usage?: {
 		input_tokens?: number;
 		output_tokens?: number;
@@ -197,11 +214,12 @@ function sumTokens(messages: TranscriptMessage[]): number {
 			total += msg.usage.cache_creation_input_tokens ?? 0;
 		}
 	}
+
 	return total;
 }
 
 function extractToolSequences(transcript: TranscriptMessage[]) {
-	const sequence: Array<{ tool: string; input: any; failed: boolean }> = [];
+	const sequence: Array<{ tool: string; input: unknown; failed: boolean }> = [];
 	for (const msg of transcript) {
 		if (!msg.content || !Array.isArray(msg.content)) continue;
 		for (const block of msg.content) {
@@ -239,11 +257,11 @@ function detectCorrections(sequence: ReturnType<typeof extractToolSequences>) {
 			if (sequence[j].tool === sequence[i].tool && !sequence[j].failed) {
 				const failedInput =
 					typeof sequence[i].input === "string"
-						? sequence[i].input
+						? (sequence[i].input as string)
 						: JSON.stringify(sequence[i].input).slice(0, 200);
 				const succeededInput =
 					typeof sequence[j].input === "string"
-						? sequence[j].input
+						? (sequence[j].input as string)
 						: JSON.stringify(sequence[j].input).slice(0, 200);
 				if (failedInput !== succeededInput) {
 					corrections.push({
@@ -422,10 +440,12 @@ async function hookStop(): Promise<void> {
 
 			for (const [tool, count] of toolFailCounts) {
 				if (count >= 3) {
-					const examples = failures
-						.filter((f: any) => f.tool_name === tool)
+					const examples = (
+						failures as Array<{ tool_name?: string; error_summary?: unknown }>
+					)
+						.filter((f) => f.tool_name === tool)
 						.slice(0, 2)
-						.map((f: any) => f.error_summary.slice(0, 100))
+						.map((f) => String(f.error_summary ?? "").slice(0, 100))
 						.join("; ");
 					await store.insertRawMemory(
 						`Repeated failures with ${tool} (${count}x in session): ${examples}`,
@@ -443,8 +463,9 @@ async function hookStop(): Promise<void> {
 			);
 		if (discoveryStored)
 			console.error(`memelord: stored 1 discovery from high-token exploration`);
-	} catch (e: any) {
-		console.error(`memelord Stop error: ${e.message}`);
+	} catch (e: unknown) {
+		const message = e instanceof Error ? e.message : String(e);
+		console.error(`memelord Stop error: ${message}`);
 	} finally {
 		await store.close();
 	}
@@ -493,8 +514,9 @@ async function hookSessionEnd(): Promise<void> {
 		const failuresFile = join(sessionsDir, `${sessionId}.failures.jsonl`);
 		if (existsSync(sessionFile)) unlinkSync(sessionFile);
 		if (existsSync(failuresFile)) unlinkSync(failuresFile);
-	} catch (e: any) {
-		console.error(`memelord SessionEnd error: ${e.message}`);
+	} catch (e: unknown) {
+		const message = e instanceof Error ? e.message : String(e);
+		console.error(`memelord SessionEnd error: ${message}`);
 	}
 }
 

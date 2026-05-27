@@ -53,6 +53,7 @@ try {
 
 	if (existsSync(sessionFile)) unlinkSync(sessionFile);
 	if (existsSync(failuresFile)) unlinkSync(failuresFile);
-} catch (e: any) {
-	console.error(`memelord SessionEnd error: ${e.message}`);
+} catch (e: unknown) {
+	const message = e instanceof Error ? e.message : String(e);
+	console.error(`memelord SessionEnd error: ${message}`);
 }

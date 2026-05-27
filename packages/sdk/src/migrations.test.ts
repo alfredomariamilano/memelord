@@ -35,7 +35,9 @@ describe("runMigrations", () => {
 		const tables = await tursoDb.all(
 			"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
 		);
-		const tableNames = tables.map((t: any) => t.name);
+		const tableNames = tables.map(
+			(t: Record<string, unknown>) => t.name as string,
+		);
 
 		expect(tableNames).toContain("memories");
 		expect(tableNames).toContain("tasks");
@@ -53,7 +55,9 @@ describe("runMigrations", () => {
 		const tables = await tursoDb.all(
 			"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
 		);
-		const tableNames = tables.map((t: any) => t.name);
+		const tableNames = tables.map(
+			(t: Record<string, unknown>) => t.name as string,
+		);
 
 		// Each table should appear exactly once
 		const counts = tableNames.reduce((acc: Record<string, number>, name) => {

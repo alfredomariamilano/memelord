@@ -16,8 +16,10 @@ if (!response) process.exit(0);
 // Detect failures from structured tool_response fields
 // Only check top-level fields, NOT serialized content (which contains file text, code, etc.)
 const isFailure =
-	(typeof response === "object" && response.success === false) ||
-	(typeof response === "object" && response.isError === true) ||
+	(typeof response === "object" &&
+		(response as Record<string, unknown>).success === false) ||
+	(typeof response === "object" &&
+		(response as Record<string, unknown>).isError === true) ||
 	(typeof response === "string" &&
 		(response.startsWith("Error:") ||
 			response.startsWith("error:") ||
@@ -27,8 +29,8 @@ const isFailure =
 			response.includes("Permission denied"))) ||
 	// Bash tool: check exit code in structured response
 	(typeof response === "object" &&
-		typeof response.exitCode === "number" &&
-		response.exitCode !== 0);
+		typeof (response as Record<string, unknown>).exitCode === "number" &&
+		(response as Record<string, unknown>).exitCode !== 0);
 
 if (!isFailure) process.exit(0);
 
@@ -37,8 +39,8 @@ const sessionId = input.session_id ?? "unknown";
 const errorSummary =
 	typeof response === "string"
 		? response.slice(0, 500)
-		: (response.error ??
-			response.message ??
+		: ((response as Record<string, unknown>).error ??
+			(response as Record<string, unknown>).message ??
 			JSON.stringify(response).slice(0, 500));
 const entry = {
 	timestamp: Math.floor(Date.now() / 1000),

@@ -157,7 +157,10 @@ describe("MemoryStore API tests", () => {
 			);
 
 			expect(rows.length).toBeGreaterThan(0);
-			const authMem = (rows as any[]).find((r) => r.id === memId1);
+			const typedRows = rows as Array<Record<string, unknown>>;
+			const authMem = typedRows.find(
+				(r) => typeof r.id === "string" && r.id === memId1,
+			);
 			// Mock embeddings are random, so just verify we got results and the memory exists in the DB
 			expect(authMem).toBeDefined();
 		});
@@ -326,7 +329,7 @@ describe("MemoryStore API tests", () => {
 				.get();
 
 			expect(row).toBeDefined();
-			const parsed = JSON.parse(row?.value);
+			const parsed = JSON.parse((row?.value ?? "") as string);
 			expect(parsed.count).toBe(1);
 			expect(parsed.meanTokens).toBe(10000);
 		});
@@ -822,12 +825,13 @@ describe("MemoryStore API tests", () => {
 				.limit(3);
 
 			expect(rows.length).toBe(3);
-			expect((rows as any[])[0].id).toBe(highId);
-			expect((rows as any[])[0].weight).toBe(3.0);
-			expect((rows as any[])[1].id).toBe(midId);
-			expect((rows as any[])[1].weight).toBe(1.5);
-			expect((rows as any[])[2].id).toBe(lowId);
-			expect((rows as any[])[2].weight).toBe(0.5);
+			const r = rows as Array<Record<string, unknown>>;
+			expect(r[0].id).toBe(highId);
+			expect(r[0].weight).toBe(3.0);
+			expect(r[1].id).toBe(midId);
+			expect(r[1].weight).toBe(1.5);
+			expect(r[2].id).toBe(lowId);
+			expect(r[2].weight).toBe(0.5);
 		});
 	});
 

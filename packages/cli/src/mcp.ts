@@ -69,9 +69,10 @@ Also returns a task_id that you MUST pass to memory_end_task when you finish.`,
 				}
 
 				return { content: [{ type: "text" as const, text }] };
-			} catch (e: any) {
+			} catch (e: unknown) {
+				const message = e instanceof Error ? e.message : String(e);
 				return {
-					content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+					content: [{ type: "text" as const, text: `Error: ${message}` }],
 					isError: true,
 				};
 			}
@@ -141,9 +142,10 @@ Store insights proactively — they save future sessions from re-exploring the s
 						},
 					],
 				};
-			} catch (e: any) {
+			} catch (e: unknown) {
+				const message = e instanceof Error ? e.message : String(e);
 				return {
-					content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+					content: [{ type: "text" as const, text: `Error: ${message}` }],
 					isError: true,
 				};
 			}
@@ -194,9 +196,10 @@ For self_report: rate each memory that was retrieved at task start:
 				}
 
 				return { content: [{ type: "text" as const, text }] };
-			} catch (e: any) {
+			} catch (e: unknown) {
+				const message = e instanceof Error ? e.message : String(e);
 				return {
-					content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+					content: [{ type: "text" as const, text: `Error: ${message}` }],
 					isError: true,
 				};
 			}
@@ -239,9 +242,10 @@ Example: You retrieve a memory saying "config is in /etc/shadow" but discover it
 					text += ` Correction saved (id: ${result.correctionId}).`;
 				}
 				return { content: [{ type: "text" as const, text }] };
-			} catch (e: any) {
+			} catch (e: unknown) {
+				const message = e instanceof Error ? e.message : String(e);
 				return {
-					content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+					content: [{ type: "text" as const, text: `Error: ${message}` }],
 					isError: true,
 				};
 			}
@@ -280,9 +284,10 @@ Use this to check that the memory system is working.`,
 				}
 
 				return { content: [{ type: "text" as const, text: lines.join("\n") }] };
-			} catch (e: any) {
+			} catch (e: unknown) {
+				const message = e instanceof Error ? e.message : String(e);
 				return {
-					content: [{ type: "text" as const, text: `Error: ${e.message}` }],
+					content: [{ type: "text" as const, text: `Error: ${message}` }],
 					isError: true,
 				};
 			}

@@ -4,6 +4,93 @@ import { join, resolve } from "node:path";
 import type { Database } from "@tursodatabase/database";
 import { startMcpServer } from "./mcp.js";
 
+interface CountRow {
+	c?: number;
+	avg?: number | null;
+}
+interface CategoryRow {
+	category?: string;
+	c?: number;
+}
+interface MemoryRow {
+	id?: unknown;
+	content?: unknown;
+	weight?: unknown;
+	retrieval_count?: unknown;
+	created_at?: unknown;
+	emb_len?: unknown;
+	category?: string;
+}
+
+// MCP config types
+interface McpServersConfig {
+	command: string;
+	args: Array<string>;
+	env?: Record<string, string>;
+}
+interface McporterMcpServersConfig {
+	command: string;
+	args: Array<string>;
+	env?: Record<string, string>;
+}
+interface OpencodeMcpConfig {
+	type: string;
+	command: Array<string>;
+	environment: Record<string, string>;
+	enabled: boolean;
+}
+
+// MCP config container types
+interface McpServersMap {
+	[key: string]: McpServersConfig;
+}
+interface McporterMcpServersMap {
+	[key: string]: McporterMcpServersConfig;
+}
+interface OpencodeMcpMap {
+	[key: string]: OpencodeMcpConfig;
+}
+
+interface McpConfig {
+	mcpServers?: McpServersMap;
+}
+interface McporterConfig {
+	mcpServers?: McporterMcpServersMap;
+}
+interface OpenCodeConfig {
+	mcp?: OpencodeMcpMap;
+}
+
+// Claude Code hook types
+interface ClaudeSettingsHooks {
+	[event: string]: Array<Record<string, unknown>>;
+}
+interface ClaudeSettings {
+	hooks?: ClaudeSettingsHooks;
+}
+
+// Task row type
+interface TaskRow {
+	id?: unknown;
+	description?: unknown;
+	task_score?: unknown;
+	tokens_used?: unknown;
+	tool_calls?: unknown;
+	errors?: unknown;
+	user_corrections?: unknown;
+	completed?: unknown;
+	started_at?: unknown;
+	finished_at?: unknown;
+}
+interface RetrievalRow {
+	memory_id?: unknown;
+	similarity?: unknown;
+	self_report?: unknown;
+	credit?: unknown;
+	preview?: unknown;
+	category?: string;
+}
+
 const command = process.argv[2];
 
 function getDbPath(): string {
@@ -59,52 +146,56 @@ if (command === "hook") {
 	await startMcpServer();
 } else if (command === "status") {
 	await withDb(async (db) => {
-		const memCount = (
-			(await (
-				await db.prepare("SELECT COUNT(*) as c FROM memories")
-			).get()) as any
-		).c;
-		const taskCount = (
-			(await (
-				await db.prepare(
-					"SELECT COUNT(*) as c FROM tasks WHERE finished_at IS NOT NULL",
-				)
-			).get()) as any
-		).c;
+		const memCount =
+			(
+				(await (
+					await db.prepare("SELECT COUNT(*) as c FROM memories")
+				).get()) as CountRow
+			)?.c ?? 0;
+		const taskCount =
+			(
+				(await (
+					await db.prepare(
+						"SELECT COUNT(*) as c FROM tasks WHERE finished_at IS NOT NULL",
+					)
+				).get()) as CountRow
+			)?.c ?? 0;
 		const avgScore = (
 			(await (
 				await db.prepare(
 					"SELECT AVG(task_score) as avg FROM tasks WHERE task_score IS NOT NULL",
 				)
-			).get()) as any
-		).avg;
-		const categories = (await (
+			).get()) as CountRow
+		)?.avg;
+		const categories = ((await (
 			await db.prepare(
 				"SELECT category, COUNT(*) as c FROM memories GROUP BY category ORDER BY c DESC",
 			)
-		).all()) as any[];
+		).all()) ?? []) as CategoryRow[];
 
 		console.log(`memelord status:`);
 		console.log(`  Memories:  ${memCount}`);
 		console.log(`  Tasks:     ${taskCount}`);
 		console.log(`  Avg score: ${avgScore?.toFixed(3) ?? "N/A"}`);
 		console.log(
-			`  By category: ${categories.map((r: any) => `${r.category}=${r.c}`).join(", ")}`,
+			`  By category: ${categories.map((r) => `${r.category}=${r.c}`).join(", ")}`,
 		);
 
-		const topMems = (await (
+		const topMems = ((await (
 			await db.prepare(
 				"SELECT content, weight, retrieval_count FROM memories ORDER BY weight DESC LIMIT 5",
 			)
-		).all()) as any[];
+		).all()) ?? []) as MemoryRow[];
 
 		if (topMems.length > 0) {
 			console.log(`\n  Top by weight:`);
 			for (const m of topMems) {
 				const preview =
-					m.content.length > 70 ? `${m.content.slice(0, 70)}...` : m.content;
+					(m.content as string).length > 70
+						? `${(m.content as string).slice(0, 70)}...`
+						: (m.content as string);
 				console.log(
-					`    [w=${m.weight.toFixed(2)}, used=${m.retrieval_count}x] ${preview}`,
+					`    [w=${(m.weight as number).toFixed(2)}, used=${m.retrieval_count as number}x] ${preview}`,
 				);
 			}
 		}
@@ -115,14 +206,15 @@ if (command === "hook") {
 
 		let query =
 			"SELECT id, content, category, weight, retrieval_count, created_at, length(embedding) as emb_len FROM memories";
-		const params: any[] = [];
+		const params: unknown[] = [];
 		if (filter) {
 			query += " WHERE category = ?";
 			params.push(filter);
 		}
 		query += " ORDER BY created_at DESC";
 
-		const rows = (await (await db.prepare(query)).all(...params)) as any[];
+		const rows = ((await (await db.prepare(query)).all(...params)) ??
+			[]) as MemoryRow[];
 
 		if (rows.length === 0) {
 			console.log(
@@ -137,11 +229,11 @@ if (command === "hook") {
 			const embStatus =
 				r.emb_len === 1536 ? "OK" : r.emb_len ? `${r.emb_len}B!` : "pending";
 			console.log(
-				`--- [${r.category}] w=${r.weight.toFixed(2)} | used=${r.retrieval_count}x | emb=${embStatus} | ${timeAgo(r.created_at)} ---`,
+				`--- [${r.category ?? ""}] w=${(r.weight as number).toFixed(2)} | used=${r.retrieval_count as number}x | emb=${embStatus} | ${timeAgo(r.created_at as number)} ---`,
 			);
-			console.log(r.content.slice(0, 500));
-			if (r.content.length > 500)
-				console.log(`  ...(${r.content.length} chars total)`);
+			console.log((r.content as string).slice(0, 500));
+			if ((r.content as string).length > 500)
+				console.log(`  ...(${(r.content as string).length} chars total)`);
 			console.log();
 		}
 	});
@@ -149,7 +241,7 @@ if (command === "hook") {
 	await withDb(async (db) => {
 		const limit = parseInt(process.argv[3] ?? "10", 10);
 
-		const rows = (await (
+		const rows = ((await (
 			await db.prepare(`
       SELECT id, description, tokens_used, tool_calls, errors, user_corrections,
              completed, task_score, started_at, finished_at
@@ -157,7 +249,7 @@ if (command === "hook") {
       ORDER BY started_at DESC
       LIMIT ?
     `)
-		).all(limit)) as any[];
+		).all(limit)) ?? []) as TaskRow[];
 
 		if (rows.length === 0) {
 			console.log("No tasks found.");
@@ -167,52 +259,65 @@ if (command === "hook") {
 		console.log(`Last ${rows.length} tasks:\n`);
 
 		for (const t of rows) {
-			const status = t.finished_at
-				? t.completed
-					? "completed"
-					: "failed"
-				: "in-progress";
-			const score = t.task_score != null ? t.task_score.toFixed(3) : "N/A";
-			const desc = (t.description || "").slice(0, 100);
-			const when = t.started_at ? timeAgo(t.started_at) : "?";
+			const status =
+				(t.finished_at as number) != null
+					? t.completed
+						? "completed"
+						: "failed"
+					: "in-progress";
+			const score =
+				(t.task_score as number) != null
+					? (t.task_score as number).toFixed(3)
+					: "N/A";
+			const desc = ((t.description ?? "") as string).slice(0, 100);
+			const when =
+				(t.started_at as number) != null
+					? timeAgo(t.started_at as number)
+					: "?";
 
 			console.log(
 				`[${status}] score=${score} | ${t.tokens_used ?? "?"}tok, ${t.tool_calls ?? "?"}calls, ${t.errors ?? 0}err, ${t.user_corrections ?? 0}corr | ${when}`,
 			);
 			console.log(`  ${desc}`);
 
-			const retrievals = (await (
+			const retrievals = ((await (
 				await db.prepare(`
         SELECT r.memory_id, r.similarity, r.self_report, r.credit,
                substr(m.content, 1, 80) as preview, m.category
-        FROM memory_retrievals r
-        JOIN memories m ON r.memory_id = m.id
-        WHERE r.task_id = ?
-      `)
-			).all(t.id)) as any[];
+         FROM memory_retrievals r
+          JOIN memories m ON r.memory_id = m.id
+          WHERE r.task_id = ?
+        `)
+			).all(Number(t.id))) ?? []) as RetrievalRow[];
 
 			if (retrievals.length > 0) {
 				for (const r of retrievals) {
 					const rated =
-						r.self_report != null ? ` rated=${r.self_report}/3` : "";
+						(r.self_report as number) != null
+							? ` rated=${r.self_report as number}/3`
+							: "";
 					const credit =
-						r.credit != null ? ` credit=${r.credit.toFixed(2)}` : "";
+						(r.credit as number) != null
+							? ` credit=${(r.credit as number).toFixed(2)}`
+							: "";
 					console.log(
-						`    -> [${r.category}] sim=${(r.similarity ?? 0).toFixed(3)}${rated}${credit} "${r.preview}..."`,
+						`    -> [${r.category as string}] sim=${((r.similarity ?? 0) as number).toFixed(3)}${rated}${credit} "${r.preview as string}..."`,
 					);
 				}
 			}
 
-			const created = (await (
+			const created = ((await (
 				await db.prepare(`
         SELECT category, substr(content, 1, 60) as preview
         FROM memories WHERE source_task = ?
       `)
-			).all(t.id)) as any[];
+			).all(Number(t.id))) ?? []) as RetrievalRow[];
 
 			if (created.length > 0) {
 				for (const c of created) {
-					console.log(`    <- stored [${c.category}] "${c.preview}..."`);
+					console.log(
+						`    <- stored [${c.category as string}] "${c.preview as string}..."`,
+					);
 				}
 			}
 
@@ -225,35 +330,38 @@ if (command === "hook") {
 
 		const events: { time: number; text: string }[] = [];
 
-		const tasks = (await (
+		const tasks = ((await (
 			await db.prepare(`
       SELECT description, task_score, tokens_used, tool_calls, errors,
              user_corrections, completed, started_at, finished_at
       FROM tasks ORDER BY started_at DESC LIMIT ?
     `)
-		).all(limit)) as any[];
+		).all(limit)) ?? []) as TaskRow[];
 
 		for (const t of tasks) {
-			const status = t.completed ? "OK" : "FAIL";
-			const score = t.task_score != null ? t.task_score.toFixed(2) : "?";
-			const desc = (t.description || "").slice(0, 80);
+			const status = (t.completed as boolean) ? "OK" : "FAIL";
+			const score =
+				(t.task_score as number) != null
+					? (t.task_score as number).toFixed(2)
+					: "?";
+			const desc = ((t.description ?? "") as string).slice(0, 80);
 			events.push({
-				time: t.started_at,
+				time: t.started_at as number,
 				text: `TASK [${status}] score=${score} ${t.tokens_used ?? "?"}tok ${t.errors ?? 0}err — ${desc}`,
 			});
 		}
 
-		const mems = (await (
+		const mems = ((await (
 			await db.prepare(`
       SELECT content, category, weight, created_at
       FROM memories ORDER BY created_at DESC LIMIT ?
     `)
-		).all(limit)) as any[];
+		).all(limit)) ?? []) as MemoryRow[];
 
 		for (const m of mems) {
 			events.push({
-				time: m.created_at,
-				text: `MEM  [${m.category}] w=${m.weight.toFixed(2)} — ${m.content.slice(0, 80)}`,
+				time: m.created_at as number,
+				text: `MEM  [${m.category as string}] w=${(m.weight as number).toFixed(2)} — ${(m.content as string).slice(0, 80)}`,
 			});
 		}
 
@@ -336,7 +444,7 @@ if (command === "hook") {
 
 	// 3. Claude Code — .mcp.json
 	const mcpJsonPath = join(targetDir, ".mcp.json");
-	let mcpConfig: any = {};
+	let mcpConfig: McpConfig = {};
 	if (existsSync(mcpJsonPath)) {
 		try {
 			mcpConfig = JSON.parse(readFileSync(mcpJsonPath, "utf-8"));
@@ -376,7 +484,7 @@ enabled = true
 
 	// 5. OpenCode — opencode.json
 	const opencodePath = join(targetDir, "opencode.json");
-	let opencodeConfig: any = {};
+	let opencodeConfig: OpenCodeConfig = {};
 	if (existsSync(opencodePath)) {
 		try {
 			opencodeConfig = JSON.parse(readFileSync(opencodePath, "utf-8"));
@@ -396,18 +504,19 @@ enabled = true
 	const mcporterDir = join(targetDir, "config");
 	if (!existsSync(mcporterDir)) mkdirSync(mcporterDir, { recursive: true });
 	const mcporterPath = join(mcporterDir, "mcporter.json");
-	let mcporterConfig: any = {};
+	let mcporterConfig: McporterConfig = {};
 	if (existsSync(mcporterPath)) {
 		try {
 			mcporterConfig = JSON.parse(readFileSync(mcporterPath, "utf-8"));
 		} catch {}
 	}
 	if (!mcporterConfig.mcpServers) mcporterConfig.mcpServers = {};
-	mcporterConfig.mcpServers.memelord = {
-		command: cli.command,
-		args: [...cli.args, "serve"],
-		env: { MEMELORD_DIR: join(targetDir, ".memelord") },
-	};
+	if (mcporterConfig.mcpServers)
+		mcporterConfig.mcpServers.memelord = {
+			command: cli.command,
+			args: [...cli.args, "serve"],
+			env: { MEMELORD_DIR: join(targetDir, ".memelord") },
+		};
 	writeFileSync(mcporterPath, `${JSON.stringify(mcporterConfig, null, 2)}\n`);
 	console.log("  Wrote config/mcporter.json (OpenClaw)");
 
@@ -418,7 +527,7 @@ enabled = true
 		"settings.json",
 	);
 	if (existsSync(settingsPath)) {
-		let settings: any = {};
+		let settings: ClaudeSettings = {};
 		try {
 			settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
 		} catch {}
@@ -439,21 +548,26 @@ enabled = true
 				cli.command === "memelord"
 					? `memelord hook ${def.hookName}`
 					: `${cli.command} ${cli.args.join(" ")} hook ${def.hookName}`;
-			const hookObj: any = {
+			const hookObj: Record<string, unknown> = {
 				hooks: [{ type: "command", command: cmd, timeout: def.timeout }],
 			};
-			if (def.matcher) hookObj.matcher = def.matcher;
+			if (def.matcher)
+				(hookObj as Record<string, unknown>).matcher = def.matcher;
 
 			// Replace any existing memelord hooks, or add new
-			const existing: any[] = settings.hooks[event] ?? [];
-			const idx = existing.findIndex((h: any) =>
-				h.hooks?.some(
-					(hh: any) =>
-						hh.command?.includes("memelord") ||
-						hh.command?.includes("on-session-start") ||
-						hh.command?.includes("on-stop"),
-				),
-			);
+			const existing: Array<Record<string, unknown>> = (settings.hooks?.[
+				event
+			] ?? []) as Array<Record<string, unknown>>;
+			const idx = existing.findIndex((h: Record<string, unknown>) => {
+				if (!Array.isArray(h.hooks)) return false;
+				return h.hooks.some(
+					(hh) =>
+						typeof hh === "object" &&
+						hh !== null &&
+						typeof hh.command === "string" &&
+						hh.command.includes("memelord"),
+				);
+			});
 			if (idx >= 0) {
 				existing[idx] = hookObj;
 			} else {

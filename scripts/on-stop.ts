@@ -12,13 +12,13 @@ const DISCOVERY_TOKEN_THRESHOLD = 50_000;
 interface FailureEntry {
 	timestamp: number;
 	tool_name: string;
-	tool_input: any;
+	tool_input: unknown;
 	error_summary: string;
 }
 
 interface TranscriptMessage {
 	role: string;
-	content: any;
+	content: unknown;
 	usage?: {
 		input_tokens?: number;
 		output_tokens?: number;
@@ -29,10 +29,10 @@ interface TranscriptMessage {
 
 function extractToolSequences(transcript: TranscriptMessage[]): Array<{
 	tool: string;
-	input: any;
+	input: unknown;
 	failed: boolean;
 }> {
-	const sequence: Array<{ tool: string; input: any; failed: boolean }> = [];
+	const sequence: Array<{ tool: string; input: unknown; failed: boolean }> = [];
 
 	for (const msg of transcript) {
 		if (!msg.content || !Array.isArray(msg.content)) continue;
@@ -64,7 +64,7 @@ function extractToolSequences(transcript: TranscriptMessage[]): Array<{
 }
 
 function detectCorrections(
-	sequence: Array<{ tool: string; input: any; failed: boolean }>,
+	sequence: Array<{ tool: string; input: unknown; failed: boolean }>,
 ): Array<{
 	failedTool: string;
 	failedInput: string;
@@ -85,11 +85,11 @@ function detectCorrections(
 			if (sequence[j].tool === sequence[i].tool && !sequence[j].failed) {
 				const failedInput =
 					typeof sequence[i].input === "string"
-						? sequence[i].input
+						? (sequence[i].input as string)
 						: JSON.stringify(sequence[i].input).slice(0, 200);
 				const succeededInput =
 					typeof sequence[j].input === "string"
-						? sequence[j].input
+						? (sequence[j].input as string)
 						: JSON.stringify(sequence[j].input).slice(0, 200);
 
 				if (failedInput !== succeededInput) {
@@ -148,7 +148,7 @@ function extractTextBlocks(messages: TranscriptMessage[]): string[] {
 }
 
 function countExplorationTools(
-	sequence: Array<{ tool: string; input: any; failed: boolean }>,
+	sequence: Array<{ tool: string; input: unknown; failed: boolean }>,
 ): {
 	reads: number;
 	searches: number;
@@ -309,8 +309,9 @@ try {
 	if (discoveryStored) {
 		console.error(`memelord: stored 1 discovery from high-token exploration`);
 	}
-} catch (e: any) {
-	console.error(`memelord Stop error: ${e.message}`);
+} catch (e: unknown) {
+	const message = e instanceof Error ? e.message : String(e);
+	console.error(`memelord Stop error: ${message}`);
 } finally {
 	await store.close();
 }
