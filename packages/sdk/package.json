@@ -5,6 +5,8 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "@tursodatabase/database": "^0.6.0"
+    "@tursodatabase/database": "^0.6.0",
+    "drizzle-kit": "^1.0.0-beta.22",
+    "drizzle-orm": "^1.0.0-beta.22"
   }
 }
