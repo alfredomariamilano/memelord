@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { createMemoryStore, type MemoryStore } from "memelord";
-import { join, resolve } from "path";
 
 /** Working directory, set from hook stdin or fallback to process.cwd(). */
 let _cwd: string | undefined;

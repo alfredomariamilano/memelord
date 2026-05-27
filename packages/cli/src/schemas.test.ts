@@ -106,8 +106,8 @@ describe("memoryEndTaskSchema", () => {
 				{ memory_id: "mem-2", score: "3" },
 			],
 		});
-		expect(result.self_report![0].score).toBe(2);
-		expect(result.self_report![1].score).toBe(3);
+		expect(result.self_report?.[0].score).toBe(2);
+		expect(result.self_report?.[1].score).toBe(3);
 	});
 
 	test("still enforces min/max on self_report scores", () => {

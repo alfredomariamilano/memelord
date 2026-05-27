@@ -24,7 +24,7 @@ export async function createTempDb(): Promise<{
 	db: TursoDatabase;
 	path: string;
 }> {
-	const path = join(process.cwd(), "test-db-" + randomUUID() + ".db");
+	const path = join(process.cwd(), `test-db-${randomUUID()}.db`);
 	if (existsSync(path)) rmSync(path);
 	const db = await connect(path);
 	await db.exec("PRAGMA busy_timeout = 5000");

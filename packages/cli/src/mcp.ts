@@ -1,9 +1,9 @@
+import { randomUUID } from "node:crypto";
+import { existsSync, mkdirSync } from "node:fs";
+import { resolve } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { randomUUID } from "crypto";
-import { existsSync, mkdirSync } from "fs";
 import { createMemoryStore } from "memelord";
-import { resolve } from "path";
 import { z } from "zod";
 import { createEmbedder } from "./embedder.js";
 import { memoryEndTaskSchema, memoryReportSchema } from "./schemas.js";
@@ -271,7 +271,7 @@ Use this to check that the memory system is working.`,
 					for (const mem of stats.topMemories.slice(0, 5)) {
 						const preview =
 							mem.content.length > 80
-								? mem.content.slice(0, 80) + "..."
+								? `${mem.content.slice(0, 80)}...`
 								: mem.content;
 						lines.push(
 							`    [w=${mem.weight.toFixed(2)}, used=${mem.retrievalCount}x] ${preview}`,

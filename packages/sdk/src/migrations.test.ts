@@ -16,7 +16,7 @@ describe("runMigrations", () => {
 
 	beforeEach(async () => {
 		// Create a temporary database (no multiprocess_wal for Bun compatibility)
-		dbPath = join(process.cwd(), "test-migration-db-" + randomUUID() + ".db");
+		dbPath = join(process.cwd(), `test-migration-db-${randomUUID()}.db`);
 		if (existsSync(dbPath)) rmSync(dbPath);
 		tursoDb = await connect(dbPath);
 		await tursoDb.exec("PRAGMA busy_timeout = 5000");
@@ -61,7 +61,7 @@ describe("runMigrations", () => {
 			return acc;
 		}, {});
 
-		for (const [name, count] of Object.entries(counts)) {
+		for (const [_name, count] of Object.entries(counts)) {
 			expect(count).toBe(1);
 		}
 	});

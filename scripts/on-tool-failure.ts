@@ -48,4 +48,4 @@ const entry = {
 };
 
 const failuresFile = join(getSessionsDir(), `${sessionId}.failures.jsonl`);
-appendFileSync(failuresFile, JSON.stringify(entry) + "\n");
+appendFileSync(failuresFile, `${JSON.stringify(entry)}\n`);

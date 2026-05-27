@@ -6,7 +6,7 @@
  * the poison survives until round ~19.
  */
 
-import { existsSync, unlinkSync } from "fs";
+import { existsSync, unlinkSync } from "node:fs";
 import { createMemoryStore } from "memelord";
 
 const DB_PATH = "/tmp/memelord-contradict-bench.db";

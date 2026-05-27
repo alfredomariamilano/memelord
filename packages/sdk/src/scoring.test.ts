@@ -7,7 +7,7 @@ import {
 	updateBaseline,
 	updateWeight,
 } from "./scoring";
-import type { MemoryCategory, TaskBaseline, UserInputSource } from "./types";
+import type { MemoryCategory, UserInputSource } from "./types";
 
 describe("scoring", () => {
 	describe("emptyBaseline", () => {

@@ -14,7 +14,7 @@
  * Expected: poison weight drops until garbage collected. Good weight stays high.
  */
 
-import { existsSync, unlinkSync } from "fs";
+import { existsSync, unlinkSync } from "node:fs";
 import { createMemoryStore } from "memelord";
 
 const DB_PATH = "/tmp/memelord-decay-bench.db";
@@ -92,7 +92,7 @@ for (let round = 1; round <= ROUNDS; round++) {
 	});
 
 	// Decay runs at session end
-	const decay = await store.decay();
+	const _decay = await store.decay();
 
 	const pw = poison?.weight.toFixed(3).padStart(10) ?? "     N/A  ";
 	const gw = good?.weight.toFixed(3).padStart(10) ?? "     N/A  ";

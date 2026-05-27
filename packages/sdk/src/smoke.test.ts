@@ -63,10 +63,10 @@ async function createSchema(db: TursoDatabase): Promise<void> {
 describe("MemoryStore smoke tests", () => {
 	let tursoDb: TursoDatabase;
 	let drizzleDb: ReturnType<typeof createDrizzleDb>;
-	let sessionId: string;
+	let _sessionId: string;
 
 	beforeEach(async () => {
-		sessionId = "test-session-" + randomUUID();
+		_sessionId = `test-session-${randomUUID()}`;
 		// Use in-memory database — no multiprocess_wal needed
 		tursoDb = await connect(":memory:");
 		await tursoDb.exec("PRAGMA busy_timeout = 5000");
@@ -201,7 +201,7 @@ describe("MemoryStore smoke tests", () => {
 
 			// Simulate endTask: update task score and memory weight
 			const taskScore = 1.0; // Simulated task score
-			const credit = 0.5; // Simulated credit for score 3
+			const _credit = 0.5; // Simulated credit for score 3
 
 			await drizzleDb
 				.update(schema.tasks)

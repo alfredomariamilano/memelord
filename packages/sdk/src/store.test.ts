@@ -63,10 +63,10 @@ async function createSchema(db: TursoDatabase): Promise<void> {
 describe("MemoryStore API tests", () => {
 	let tursoDb: TursoDatabase;
 	let drizzleDb: ReturnType<typeof createDrizzleDb>;
-	let sessionId: string;
+	let _sessionId: string;
 
 	beforeEach(async () => {
-		sessionId = "test-session-" + randomUUID();
+		_sessionId = `test-session-${randomUUID()}`;
 		tursoDb = await connect(":memory:");
 		await tursoDb.exec("PRAGMA busy_timeout = 5000");
 		drizzleDb = createDrizzleDb(tursoDb);
@@ -194,8 +194,8 @@ describe("MemoryStore API tests", () => {
 				.get();
 
 			expect(mem).toBeDefined();
-			expect(mem!.category).toBe("correction");
-			expect(mem!.weight).toBeGreaterThan(1.0);
+			expect(mem?.category).toBe("correction");
+			expect(mem?.weight).toBeGreaterThan(1.0);
 		});
 
 		it("should create correction with weight based on tokensWasted", async () => {
@@ -221,7 +221,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, correctionId))
 				.get();
 
-			expect(mem!.weight).toBe(2.0);
+			expect(mem?.weight).toBe(2.0);
 		});
 	});
 
@@ -247,7 +247,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, inputId))
 				.get();
 
-			expect(mem!.category).toBe("user");
+			expect(mem?.category).toBe("user");
 		});
 	});
 
@@ -290,11 +290,11 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.tasks.id, taskId))
 				.get();
 
-			expect(task!.tokensUsed).toBe(10000);
-			expect(task!.toolCalls).toBe(20);
-			expect(task!.errors).toBe(0);
-			expect(task!.completed).toBe(1);
-			expect(task!.taskScore).toBeCloseTo(1.5);
+			expect(task?.tokensUsed).toBe(10000);
+			expect(task?.toolCalls).toBe(20);
+			expect(task?.errors).toBe(0);
+			expect(task?.completed).toBe(1);
+			expect(task?.taskScore).toBeCloseTo(1.5);
 		});
 
 		it("should persist baseline to meta table", async () => {
@@ -326,7 +326,7 @@ describe("MemoryStore API tests", () => {
 				.get();
 
 			expect(row).toBeDefined();
-			const parsed = JSON.parse(row!.value);
+			const parsed = JSON.parse(row?.value);
 			expect(parsed.count).toBe(1);
 			expect(parsed.meanTokens).toBe(10000);
 		});
@@ -393,7 +393,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, memId))
 				.get();
 
-			expect(mem!.weight).toBeCloseTo(1.1);
+			expect(mem?.weight).toBeCloseTo(1.1);
 		});
 
 		it("should handle negative selfReport", async () => {
@@ -446,7 +446,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, memId))
 				.get();
 
-			expect(mem!.weight).toBeCloseTo(0.9);
+			expect(mem?.weight).toBeCloseTo(0.9);
 		});
 	});
 
@@ -491,8 +491,8 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, memId2))
 				.get();
 
-			expect(mem1!.weight).toBeCloseTo(2.0 * 0.995);
-			expect(mem2!.weight).toBeCloseTo(3.0 * 0.995);
+			expect(mem1?.weight).toBeCloseTo(2.0 * 0.995);
+			expect(mem2?.weight).toBeCloseTo(3.0 * 0.995);
 		});
 
 		it("should delete stale memories (weight < 0.15 AND retrieval_count > 5)", async () => {
@@ -701,7 +701,7 @@ describe("MemoryStore API tests", () => {
 				.from(schema.memories)
 				.get();
 
-			expect(memCount!.c).toBe(1);
+			expect(memCount?.c).toBe(1);
 			const correctionMem = await drizzleDb
 				.select({
 					content: schema.memories.content,
@@ -710,8 +710,8 @@ describe("MemoryStore API tests", () => {
 				.from(schema.memories)
 				.get();
 
-			expect(correctionMem!.content).toBe(correction);
-			expect(correctionMem!.weight).toBe(2.0);
+			expect(correctionMem?.content).toBe(correction);
+			expect(correctionMem?.weight).toBe(2.0);
 		});
 
 		it("should handle contradict with non-existent memory ID", async () => {
@@ -730,7 +730,7 @@ describe("MemoryStore API tests", () => {
 				.from(schema.memories)
 				.get();
 
-			expect(memCount!.c).toBe(0);
+			expect(memCount?.c).toBe(0);
 		});
 	});
 
@@ -774,9 +774,9 @@ describe("MemoryStore API tests", () => {
 				.from(schema.memories)
 				.get();
 
-			expect(stats!.memCount).toBe(2);
-			expect(stats!.taskCount).toBe(1);
-			expect(stats!.avgScore).toBeCloseTo(1.5);
+			expect(stats?.memCount).toBe(2);
+			expect(stats?.taskCount).toBe(1);
+			expect(stats?.avgScore).toBeCloseTo(1.5);
 		});
 	});
 
@@ -856,9 +856,9 @@ describe("MemoryStore API tests", () => {
 				.get();
 
 			expect(mem).toBeDefined();
-			expect(mem!.content).toBe("Raw memory without embedding");
-			expect(mem!.category).toBe("insight");
-			expect(mem!.weight).toBe(1.0);
+			expect(mem?.content).toBe("Raw memory without embedding");
+			expect(mem?.category).toBe("insight");
+			expect(mem?.weight).toBe(1.0);
 		});
 	});
 
@@ -889,7 +889,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, memId))
 				.get();
 
-			expect(mem!.weight).toBeCloseTo(1.0);
+			expect(mem?.weight).toBeCloseTo(1.0);
 		});
 
 		it("should clamp weight to minimum of 0.1", async () => {
@@ -918,7 +918,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, memId))
 				.get();
 
-			expect(mem!.weight).toBeCloseTo(0.1);
+			expect(mem?.weight).toBeCloseTo(0.1);
 		});
 
 		it("should handle penalize with non-existent memory ID", async () => {
@@ -962,7 +962,7 @@ describe("MemoryStore API tests", () => {
 				.where(eq(schema.memories.id, memId))
 				.get();
 
-			expect(mem!.hasEmbedding).toBe(1);
+			expect(mem?.hasEmbedding).toBe(1);
 		});
 
 		it("should return 0 when no pending embeddings", async () => {
@@ -973,7 +973,7 @@ describe("MemoryStore API tests", () => {
 				.where(sql`${schema.memories.embedding} IS NULL`)
 				.get();
 
-			expect(pendingCount!.c).toBe(0);
+			expect(pendingCount?.c).toBe(0);
 		});
 	});
 });

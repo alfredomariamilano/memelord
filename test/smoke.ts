@@ -1,4 +1,4 @@
-import { existsSync, unlinkSync } from "fs";
+import { existsSync, unlinkSync } from "node:fs";
 import { createMemoryStore } from "memelord";
 
 const DB_PATH = "/tmp/memelord-test.db";

@@ -13,9 +13,9 @@ import {
 	readFileSync,
 	unlinkSync,
 	writeFileSync,
-} from "fs";
+} from "node:fs";
+import { join, resolve } from "node:path";
 import { createMemoryStore, type MemoryStore } from "memelord";
-import { join, resolve } from "path";
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -164,12 +164,12 @@ async function hookPostToolUse(): Promise<void> {
 	const failuresFile = join(getSessionsDir(cwd), `${sessionId}.failures.jsonl`);
 	appendFileSync(
 		failuresFile,
-		JSON.stringify({
+		`${JSON.stringify({
 			timestamp: Math.floor(Date.now() / 1000),
 			tool_name: input.tool_name,
 			tool_input: input.tool_input,
 			error_summary: errorSummary,
-		}) + "\n",
+		})}\n`,
 	);
 }
 
