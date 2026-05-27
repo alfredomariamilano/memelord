@@ -2,9 +2,10 @@
  * SessionStart hook: Retrieve top memories by weight, inject as context.
  * Hot path — no embedding model, pure SQL.
  */
-import { readStdin, createLightStore, getSessionsDir } from "./shared.ts";
-import { writeFileSync } from "fs";
-import { join } from "path";
+
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { createLightStore, getSessionsDir, readStdin } from "./shared";
 
 const input = await readStdin();
 const sessionId = input.session_id ?? "unknown";
@@ -12,28 +13,31 @@ const sessionId = input.session_id ?? "unknown";
 const store = createLightStore(sessionId);
 
 try {
-  const memories = await store.getTopByWeight(5);
+	const memories = await store.getTopByWeight(5);
 
-  // Record session start
-  const sessionFile = join(getSessionsDir(), `${sessionId}.json`);
-  writeFileSync(sessionFile, JSON.stringify({
-    session_id: sessionId,
-    cwd: input.cwd,
-    started_at: Math.floor(Date.now() / 1000),
-    injected_memory_ids: memories.map(m => m.id),
-  }));
+	// Record session start
+	const sessionFile = join(getSessionsDir(), `${sessionId}.json`);
+	writeFileSync(
+		sessionFile,
+		JSON.stringify({
+			session_id: sessionId,
+			cwd: input.cwd,
+			started_at: Math.floor(Date.now() / 1000),
+			injected_memory_ids: memories.map((m) => m.id),
+		}),
+	);
 
-  // Build context to inject
-  let context = "";
+	// Build context to inject
+	let context = "";
 
-  if (memories.length > 0) {
-    context += "# Memories from past sessions\n\n";
-    for (const mem of memories) {
-      context += `[${mem.category}] (id: ${mem.id}, weight: ${mem.weight.toFixed(2)})\n${mem.content}\n\n`;
-    }
-  }
+	if (memories.length > 0) {
+		context += "# Memories from past sessions\n\n";
+		for (const mem of memories) {
+			context += `[${mem.category}] (id: ${mem.id}, weight: ${mem.weight.toFixed(2)})\n${mem.content}\n\n`;
+		}
+	}
 
-  context += `# Memory system instructions
+	context += `# Memory system instructions
 
 You have a persistent memory system available via MCP tools. Use it:
 
@@ -49,18 +53,18 @@ You have a persistent memory system available via MCP tools. Use it:
 
 6. When you finish a task, call memory_end_task with outcome metrics and rate each retrieved memory (0=ignored, 1=glanced, 2=useful, 3=directly applied).`;
 
-  // Output for Claude Code to inject
-  const output = {
-    hookSpecificOutput: {
-      hookEventName: "SessionStart",
-      additionalContext: context,
-    },
-  };
+	// Output for Claude Code to inject
+	const output = {
+		hookSpecificOutput: {
+			hookEventName: "SessionStart",
+			additionalContext: context,
+		},
+	};
 
-  console.log(JSON.stringify(output));
+	console.log(JSON.stringify(output));
 } catch (e: any) {
-  // Non-blocking — write error to stderr, exit 0 so session starts normally
-  console.error(`memelord SessionStart error: ${e.message}`);
+	// Non-blocking — write error to stderr, exit 0 so session starts normally
+	console.error(`memelord SessionStart error: ${e.message}`);
 } finally {
-  await store.close();
+	await store.close();
 }

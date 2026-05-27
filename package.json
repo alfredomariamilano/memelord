@@ -20,19 +20,27 @@
     "LICENSE"
   ],
   "scripts": {
+    "ts": "bunx tsc --noEmit",
+		"biome:check": "bunx -y @biomejs/biome check",
+		"biome:lint": "bunx -y @biomejs/biome lint",
+		"biome": "bun run biome:check && bun run biome:lint",
+		"biome:fix": "bun run biome:check -- --fix && bun run biome:lint -- --fix",
+		"lint": "bun run ts && bun run biome",
+		"lint:fix": "bun run ts && bun run biome:fix",
     "build": "tsc -p tsconfig.build.json && bun build packages/cli/src/index.ts --target node --external @tursodatabase/database --external @modelcontextprotocol/sdk --external zod --external @huggingface/transformers --outfile dist/cli.mjs && node -e \"let f=require('fs');let c=f.readFileSync('dist/cli.mjs','utf8');f.writeFileSync('dist/cli.mjs',c.replace('#!/usr/bin/env bun','#!/usr/bin/env node'))\"",
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1",
-    "@tursodatabase/database": "^0.6.0",
-    "@huggingface/transformers": "^3.4.0",
-    "zod": "^3.24.0"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@tursodatabase/database": "^0.6.1",
+    "@huggingface/transformers": "^4.2.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@biomejs/biome": "2.4.15",
+    "@types/node": "^22.19.19",
     "bun-types": "latest",
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   },
   "workspaces": [
     "packages/*"

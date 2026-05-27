@@ -257,7 +257,7 @@ async function hookStop(): Promise<void> {
     let correctionsFound = 0;
     let discoveryStored = false;
 
-    let messages: TranscriptMessage[] = [];
+    const messages: TranscriptMessage[] = [];
     if (transcriptPath && existsSync(transcriptPath)) {
       const lines = readFileSync(transcriptPath, "utf-8").trim().split("\n");
       for (const line of lines) {

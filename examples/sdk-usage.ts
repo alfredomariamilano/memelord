@@ -9,7 +9,7 @@ import { pipeline } from "@huggingface/transformers";
 
 // 1. Create an embedding function using any model you like
 const extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", {
-  quantized: true,
+  dtype: 'q8',
 });
 
 async function embed(text: string): Promise<Float32Array> {

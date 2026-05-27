@@ -21,7 +21,7 @@ export async function createEmbedder(opts?: {
   const quantized = opts?.quantized ?? true;
 
   const extractor = await pipeline("feature-extraction", model, {
-    quantized,
+    dtype: quantized ? 'q8' : 'fp16',
   });
 
   cachedEmbedder = async (text: string): Promise<Float32Array> => {

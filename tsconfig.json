@@ -8,6 +8,14 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "declaration": true,
-    "types": ["bun-types"]
+    "rootDir": ".",
+    "paths": {
+      "memelord": [
+        "./packages/sdk/src/index.ts"
+      ]
+    },
+    "types": [
+      "bun-types"
+    ]
   }
 }
